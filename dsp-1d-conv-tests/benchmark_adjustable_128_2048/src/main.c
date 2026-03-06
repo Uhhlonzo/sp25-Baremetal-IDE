@@ -15,6 +15,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "simple_setup.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -167,7 +168,12 @@ void run_one_test(int test_id, size_t N, uint32_t *kernel_buf) {
   }
 
   // (Using %u for N to avoid printf bug)
-  printf("Test %d (N=%u): Cycles = %d\n", test_id + 1, (unsigned)N, cycles);
+  // printf("Test %d (N=%u): Cycles = %d\n", test_id + 1, (unsigned)N, cycles);
+  printf("Test %d (N=%u @ %llu MHz): Cycles = %llu\n",
+       test_id + 1,
+       (unsigned)N,
+       current_freq / 1000000ULL,
+       cycles);
   uint32_t naive_cycles = read_cycles();
   // 4. Run Software Golden
   // compute_golden_full_conv(input_buf, N, kernel_buf, KERNEL_ELEMENTS, 1, golden_buf);
@@ -207,20 +213,41 @@ void run_one_test(int test_id, size_t N, uint32_t *kernel_buf) {
   * @brief  The application entry point.
   * @retval int
   */
-int main(int argc, char **argv) {
-  // Initialize UART0 for Serial Monitor
-  UART_InitType UART0_init_config;
-  UART0_init_config.baudrate = 115200;
-  UART0_init_config.mode = UART_MODE_TX_RX;
-  UART0_init_config.stopbits = UART_STOPBITS_2;
-  uart_init(UART0, &UART0_init_config);
+#if ENABLE_PLL_SWEEP
+static const uint64_t pll_freqs[] = { PLL_FREQ_LIST };
+static const size_t num_pll_freqs =
+    sizeof(pll_freqs) / sizeof(pll_freqs[0]);
+#endif
 
-  app_main();
 
-  return 0;
-}
+int main(int argc, char **argv)
+{
 
-/*
+#if ENABLE_PLL_SWEEP
+
+    init_test(pll_freqs[0]);
+
+    for (size_t i = 0; i < num_pll_freqs; i++) {
+
+        printf("\n==============================\n");
+        printf("Running at %llu Hz\n", pll_freqs[i]);
+        printf("==============================\n");
+
+        reconfigure_pll(pll_freqs[i], PLL_SWEEP_SLEEP_MS);
+
+        app_main();
+    }
+
+#else
+
+    init_test(TARGET_FREQUENCY_HZ);
+
+    app_main();
+
+#endif
+
+    return 0;
+}/*
  * Main function for secondary harts
  * 
  * Multi-threaded programs should provide their own implementation.

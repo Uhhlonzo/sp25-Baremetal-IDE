@@ -56,6 +56,37 @@ extern "C" {
 
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN Private defines */
+// ------------------------------------------------------------
+// Frequency configuration
+// ------------------------------------------------------------
+
+// Default single frequency
+#ifndef TARGET_FREQUENCY_HZ
+#define TARGET_FREQUENCY_HZ 100000000ULL
+#endif
+
+// Enable PLL sweep (0 = off, 1 = on)
+#ifndef ENABLE_PLL_SWEEP
+#define ENABLE_PLL_SWEEP 0
+#endif
+
+#ifndef PLL_SWEEP_SLEEP_MS
+#define PLL_SWEEP_SLEEP_MS 2000
+#endif
+
+// Frequency list if sweep is enabled
+#ifndef PLL_FREQ_LIST
+#define PLL_FREQ_LIST \
+  50000000ULL, \
+  150000000ULL, \
+  250000000ULL, \
+  // 350000000ULL 
+  // 450000000ULL, \
+  // 550000000ULL, \
+  // 650000000ULL, \
+  // 750000000ULL, \
+  // 850000000ULL
+#endif
 
 /* USER CODE END Private defines */
 
