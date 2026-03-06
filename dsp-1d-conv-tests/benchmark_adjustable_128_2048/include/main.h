@@ -85,7 +85,8 @@ extern "C" {
   // 550000000ULL, \
   // 650000000ULL, \
   // 750000000ULL, \
-  // 850000000ULL
+  // 850000000ULL, \
+  // 950000000ULL
 #endif
 
 /* USER CODE END Private defines */
