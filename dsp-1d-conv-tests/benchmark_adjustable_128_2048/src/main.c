@@ -46,6 +46,7 @@
 #define MAX_INPUT_ELEMENTS   2048
 #define KERNEL_ELEMENTS      8
 #define MAX_OUTPUT_ELEMENTS  (MAX_INPUT_ELEMENTS + KERNEL_ELEMENTS)
+#define current_freq SYS_CLK_FREQ
 
 
 uint8_t counter = 0;

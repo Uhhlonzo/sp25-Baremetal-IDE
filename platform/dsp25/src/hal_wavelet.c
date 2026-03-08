@@ -53,11 +53,11 @@ void wavelet_inverse(uint64_t *input_sample, uint8_t num_tests, uint64_t *output
 }
 
 /* Translate to the HW codes for the respective functions */
-const DWT_FLUSH_CYCLES = 5;
-const IDWT_FLUSH_CYCLES = 6;
-
-unsigned int num_outputs(unsigned int num_inputs, bool inverse) {size + size%2 + 2*(inverse? IDWT_FLUSH_CYCLES: DWT_FLUSH_CYCLES)}
-
+const uint32_t DWT_FLUSH_CYCLES = 5;
+const uint32_t IDWT_FLUSH_CYCLES = 6;
+unsigned int num_outputs(unsigned int num_inputs, bool inverse) {
+    return num_inputs + num_inputs % 2 + 2 * (inverse ? IDWT_FLUSH_CYCLES : DWT_FLUSH_CYCLES);
+}
 // OPTIMIZATIONS TO MAKE:
 // 	Combine writes (especially 0s) into one 64-bit write
 // 	Check flush process
@@ -128,5 +128,10 @@ static void wavelet_float(float* input, float* output, unsigned int size, uint8_
 	}
 }
 
-void dwt_float(float* input, float* output, unsigned int size, uint8_t wavelet) {wavelet_float(input, output, size, wavelet, false)}
-void idwt_float(float* input, float* output, unsigned int size, uint8_t wavelet) {wavelet_float(input, output, size, wavelet, true)}
+void dwt_float(float* input, float* output, unsigned int size, uint8_t wavelet) {
+    wavelet_float(input, output, size, wavelet, false);
+} // No semicolon here
+
+void idwt_float(float* input, float* output, unsigned int size, uint8_t wavelet) {
+    wavelet_float(input, output, size, wavelet, true);
+} // No semicolon here

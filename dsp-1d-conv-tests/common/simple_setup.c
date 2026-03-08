@@ -49,10 +49,11 @@ void reconfigure_pll(uint64_t target_frequency, uint32_t sleep_ms)
 
     sleep_ms_blocking(sleep_ms);
 }
-
+/*
 uint64_t rdcycle(void)
 {
     uint64_t cycles;
     asm volatile ("rdcycle %0" : "=r"(cycles));
     return cycles;
 }
+    */

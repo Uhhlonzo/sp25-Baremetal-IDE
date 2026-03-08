@@ -97,7 +97,7 @@ SECTIONS {
     
     *(.gnu.linkonce.t.*)
     PROVIDE(__text_end = .);
-  }> SCRATCH
+  }> DRAM
   PROVIDE(__text_load_start = LOADADDR(.text));
 
   /* Section containing read-only data */
@@ -111,7 +111,7 @@ SECTIONS {
     *(.srodata.cst4)
     *(.srodata.cst2)
     *(.srodata .srodata.*)
-  }> SCRATCH
+  }> DRAM
 
   /* Section for initialized data */
   .data : ALIGN(8) {
@@ -138,7 +138,7 @@ SECTIONS {
     KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
     KEEP(*(.fini_array EXCLUDE_FILE(*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
     PROVIDE_HIDDEN(__fini_array_end = .);
-  }> SCRATCH
+  }> DRAM
   
   PROVIDE(__data_load_start = LOADADDR(.data));
 
@@ -147,7 +147,7 @@ SECTIONS {
     PROVIDE(__global_pointer$ = . + 0x800);
     *(.sdata .sdata.*)
     *(.gnu.linkonce.s.*)
-  }> SCRATCH
+  }> DRAM
 
   /* Section for initialized thread-local small data */
   .tdata : {
@@ -156,7 +156,7 @@ SECTIONS {
     *(.gnu.linkonce.td.*)
     PROVIDE_HIDDEN(__tdata_end = .);
     PROVIDE(__data_end = .);
-  }> SCRATCH
+  }> DRAM
 
   PROVIDE(__tdata_size = SIZEOF(.tdata));
 
@@ -168,7 +168,7 @@ SECTIONS {
     *(.gnu.linkonce.tb.*)
     *(.tcommon)
     PROVIDE_HIDDEN(__tbss_end = .);
-  }> SCRATCH
+  }> DRAM
   
   PROVIDE(__tbss_size = SIZEOF(.tbss));
 
@@ -177,7 +177,7 @@ SECTIONS {
     PROVIDE_HIDDEN(__bss_start = .);
     *(.sbss .sbss.*)
     *(.gnu.linkonce.sb.*)
-  }> SCRATCH
+  }> DRAM
   
   /* Section for uninitialized data */
   .bss (NOLOAD) : ALIGN(8) {
@@ -185,7 +185,7 @@ SECTIONS {
     *(.gnu.linkonce.b.*)
     *(COMMON)
     PROVIDE_HIDDEN(__bss_end = .);
-  }> SCRATCH
+  }> DRAM
 
   . = ALIGN(8);
   PROVIDE(__end = .);
@@ -196,7 +196,7 @@ SECTIONS {
     . += __heap_size;
     . = ALIGN(4K);
     PROVIDE_HIDDEN(__heap_end = .);
-  }> SCRATCH
+  }> DRAM
   
   /* Reserve stack space */
   .stack (NOLOAD) : ALIGN(16) {
@@ -204,7 +204,7 @@ SECTIONS {
     . += __stack_size; /* Hart 0 */
     PROVIDE(_sp = .);
     PROVIDE_HIDDEN(__stack_end = .);
-  }> SCRATCH
+  }> DRAM
 
   PROVIDE(__stack_shift = LOG2CEIL(__stack_size));
 
