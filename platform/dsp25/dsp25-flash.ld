@@ -1,5 +1,5 @@
 /**
-  * @file dsp25-flash.ld
+  * @file bearly25-dram.ld
   * @brief Linker script to place sections and symbol values. Should be used together
   * with other linker script that defines memory regions FLASH and RAM.
   * It references following symbols, which must be defined in code:
@@ -47,21 +47,21 @@ OUTPUT_ARCH("riscv")
 ENTRY(_start)
 
 MEMORY {
-  SCRATCH  (rwx): ORIGIN = 0x08000000, LENGTH = 32K
+  SCRATCH  (rwx): ORIGIN = 0x08000000, LENGTH = 64K
   FLASH    (rwx): ORIGIN = 0x20000000, LENGTH = 16M
-  DRAM     (rwx): ORIGIN = 0x80000000, LENGTH = 2048M
+  DRAM     (rwx): ORIGIN = 0x80000000, LENGTH = 256M
 }
 
 SECTIONS {
   /* Default boot hart */
   PROVIDE(__boot_hart = 0);
   
-  /* Default stack size (4K) */
+  /* Default stack size */
   __stack_size = DEFINED(__stack_size) ? __stack_size : 4K;
   PROVIDE(__stack_size = __stack_size);
 
-  /* Default heap size (4K) */
-  __heap_size = DEFINED(__heap_size) ? __heap_size : 4K;
+  /* Default heap size */
+  __heap_size = DEFINED(__heap_size) ? __heap_size : 1M;
   PROVIDE(__heap_size = __heap_size);
   
   /*
@@ -102,7 +102,7 @@ SECTIONS {
     
     *(.gnu.linkonce.t.*)
     PROVIDE(__text_end = .);
-  }> FLASH
+  }> DRAM
   PROVIDE(__text_load_start = LOADADDR(.text));
 
   /* Section containing read-only data */
@@ -116,7 +116,7 @@ SECTIONS {
     *(.srodata.cst4)
     *(.srodata.cst2)
     *(.srodata .srodata.*)
-  }> FLASH
+  }> DRAM
 
   /* Section for initialized data */
   .data : ALIGN(8) {
@@ -143,7 +143,7 @@ SECTIONS {
     KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
     KEEP(*(.fini_array EXCLUDE_FILE(*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
     PROVIDE_HIDDEN(__fini_array_end = .);
-  }> SCRATCH AT> FLASH
+  }> DRAM
   
   PROVIDE(__data_load_start = LOADADDR(.data));
 
@@ -152,7 +152,7 @@ SECTIONS {
     PROVIDE(__global_pointer$ = . + 0x800);
     *(.sdata .sdata.*)
     *(.gnu.linkonce.s.*)
-  }> SCRATCH AT> FLASH
+  }> DRAM
 
   /* Section for initialized thread-local small data */
   .tdata : {
@@ -161,7 +161,7 @@ SECTIONS {
     *(.gnu.linkonce.td.*)
     PROVIDE_HIDDEN(__tdata_end = .);
     PROVIDE(__data_end = .);
-  }> SCRATCH AT> FLASH
+  }> DRAM
 
   PROVIDE(__tdata_size = SIZEOF(.tdata));
 
@@ -173,7 +173,7 @@ SECTIONS {
     *(.gnu.linkonce.tb.*)
     *(.tcommon)
     PROVIDE_HIDDEN(__tbss_end = .);
-  }> SCRATCH
+  }> DRAM
   
   PROVIDE(__tbss_size = SIZEOF(.tbss));
 
@@ -182,7 +182,7 @@ SECTIONS {
     PROVIDE_HIDDEN(__bss_start = .);
     *(.sbss .sbss.*)
     *(.gnu.linkonce.sb.*)
-  }> SCRATCH
+  }> DRAM
   
   /* Section for uninitialized data */
   .bss (NOLOAD) : ALIGN(8) {
@@ -190,7 +190,7 @@ SECTIONS {
     *(.gnu.linkonce.b.*)
     *(COMMON)
     PROVIDE_HIDDEN(__bss_end = .);
-  }> SCRATCH
+  }> DRAM
 
   . = ALIGN(8);
   PROVIDE(__end = .);
@@ -201,15 +201,18 @@ SECTIONS {
     . += __heap_size;
     . = ALIGN(4K);
     PROVIDE_HIDDEN(__heap_end = .);
-  }> SCRATCH
+  }> DRAM
   
   /* Reserve stack space */
   .stack (NOLOAD) : ALIGN(16) {
     PROVIDE_HIDDEN(__stack_start = .);
-    . += __stack_size * 5; /* Hart 0 */
+    . += __stack_size * 5; /* Hart 0 */ 
+    /* To fill the rest of Scratchpad with the stack (aka to fill any leftover space) 
+    replace "__stack_size * 5" with the last valid memory address of the 
+    memory area (0x8FFFFFFF for DRAM) */
     PROVIDE(_sp = .);
     PROVIDE_HIDDEN(__stack_end = .);
-  }> SCRATCH
+  }> DRAM
 
   PROVIDE(__stack_shift = LOG2CEIL(__stack_size));
 
